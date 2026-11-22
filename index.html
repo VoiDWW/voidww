@@ -15,7 +15,7 @@
       --text: #e7e7eb;
       --muted: #a6a6ad;
       --border: #45454b;
-      --accent: #ef4444;
+      --accent: #ff0000;
       --content-width: 1180px;
     }
 
@@ -327,7 +327,7 @@
     .package-name {
       min-width: 0;
       overflow-wrap: anywhere;
-      color: #0876a5;
+      color: var(--accent);
       font-size: 16px;
     }
 
@@ -362,7 +362,7 @@
       font-size: 14px;
     }
 
-    .package-error { color: #a4212b; }
+    .package-error { color: var(--accent); }
 
     footer {
       width: min(100% - 36px, var(--content-width));
