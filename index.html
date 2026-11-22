@@ -1,713 +1,800 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>VOID ECHO: Full Edition 2025</title>
-    <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
-        canvas { display: block; image-rendering: pixelated; }
-        #device-menu, #menu { position: absolute; width: 100%; height: 100%; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; text-align: center; border: 4px solid white; box-sizing: border-box; }
-        #menu-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .btn { padding: 15px 40px; font-size: 24px; background: black; color: white; border: 4px solid white; cursor: pointer; margin: 10px; position: relative; z-index: 101; font-family: inherit; }
-        .btn:hover { background: white; color: black; }
-        #seed-input { padding: 10px; font-size: 18px; margin-top: 20px; background: #111; color: white; border: 2px solid white; text-align: center; width: 250px; outline: none; }
-        #hud { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: none; flex-direction: column; align-items: center; pointer-events: none; }
-        #hearts { display: flex; margin-bottom: 10px; font-size: 28px; line-height: 28px; }
-        .heart { color: #ff0000; margin: 0 3px; text-shadow: 0 0 5px rgba(255,0,0,0.5); }
-        .heart.empty { color: #330000; text-shadow: none; }
-        .heart.god { text-shadow: 0 0 10px #fff; }
-        #hotbar { display: flex; background: rgba(0,0,0,0.8); border: 2px solid #fff; padding: 5px; pointer-events: auto; }
-        .slot { width: 48px; height: 48px; border: 2px solid #444; margin: 0 4px; display: flex; align-items: center; justify-content: center; font-size: 24px; opacity: 0.3; }
-        .slot.active { border-color: #fff; box-shadow: 0 0 15px #fff; opacity: 1 !important; }
-        .slot.unlocked { opacity: 1; border-color: #666; }
-        #status-ui { position: absolute; top: 10px; left: 10px; color: #0f0; font-weight: bold; font-size: 14px; text-shadow: 1px 1px #000; z-index: 10; }
-        #seed-container { position: absolute; bottom: 10px; left: 10px; display: none; z-index: 10; font-size: 12px; color: rgba(255,255,255,0.5); }
-        #seed-display-val { background: transparent; border: none; color: rgba(255,255,255,0.5); font-family: inherit; width: 150px; outline: none; }
-        #side-panel { position: absolute; top: 10px; right: -210px; width: 250px; background: rgba(0, 0, 0, 0.8); border: 2px solid #fff; padding: 10px; transition: right 0.4s; z-index: 150; display: none; color: white; }
-        #side-panel:hover { right: 10px; }
-        #side-input { width: 100%; background: #111; color: #fff; border: 1px solid #fff; padding: 5px; box-sizing: border-box; font-family: inherit; }
-        #mobile-controls { position: absolute; bottom: 30px; width: 100%; display: none; justify-content: space-between; padding: 0 40px; box-sizing: border-box; z-index: 200; pointer-events: none; }
-        .joy-btn { width: 85px; height: 85px; background: rgba(255,255,255,0.1); border: 3px solid white; border-radius: 50%; pointer-events: auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; -webkit-user-select: none; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1c1b1f">
+  <title>VoiDWW — главная</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050608;
+      --header: #252428;
+      --toolbar: #080b10;
+      --text: #e7e7eb;
+      --muted: #a6a6ad;
+      --border: #45454b;
+      --accent: #ef4444;
+      --content-width: 1180px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus-visible {
+      text-decoration: underline;
+    }
+
+    button { font: inherit; }
+
+    .site-header {
+      height: 86px;
+      overflow: hidden;
+      background: var(--header);
+      border-bottom: 7px solid var(--accent);
+    }
+
+    .site-header-inner {
+      width: min(100% - 34px, var(--content-width));
+      height: 79px;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .brand {
+      flex: 0 0 auto;
+      width: 72px;
+      height: 72px;
+      display: grid;
+      place-items: center;
+    }
+
+    .brand img {
+      display: block;
+      width: 66px;
+      height: 66px;
+      object-fit: contain;
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      min-width: max-content;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .top-nav::-webkit-scrollbar { display: none; }
+
+    .top-nav a,
+    .top-nav button {
+      padding: 0;
+      color: #aaa9ae;
+      background: none;
+      border: 0;
+      font-size: 17px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .top-nav a:hover,
+    .top-nav a:focus-visible,
+    .top-nav button:hover,
+    .top-nav button:focus-visible {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .top-nav button.active {
+      color: var(--accent);
+    }
+
+    .toolbar {
+      position: relative;
+      z-index: 5;
+      height: 140px;
+      background: var(--toolbar);
+      border-bottom: 1px solid #25262b;
+    }
+
+    .toolbar-inner {
+      width: min(100% - 36px, var(--content-width));
+      height: 100%;
+      margin-inline: auto;
+      padding-top: 30px;
+    }
+
+    .icon-button {
+      width: 46px;
+      height: 46px;
+      padding: 7px;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .icon-button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .icon-button svg {
+      width: 30px;
+      height: 30px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .mobile-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: none;
+      padding: 12px 18px;
+      background: #111318;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 8px 18px rgb(0 0 0 / 45%);
+    }
+
+    .mobile-menu.is-open { display: block; }
+
+    .mobile-menu a {
+      display: block;
+      padding: 8px 0;
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .page {
+      width: min(100% - 2px, var(--content-width));
+      min-height: 360px;
+      margin: 0 auto;
+      padding: 16px 24px 56px;
+      border-right: 1px solid #29292d;
+      border-left: 1px solid #29292d;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(34px, 6vw, 50px);
+      font-weight: 400;
+      line-height: 1.2;
+      letter-spacing: -0.04em;
+    }
+
+    .page-tabs {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      border-bottom: 2px solid #69696e;
+    }
+
+    .page-tabs a {
+      position: relative;
+      color: #cccbd0;
+      font-size: 18px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    .page-tabs a.active { color: #c59bf5; }
+
+    .page-tabs a.active::after {
+      position: absolute;
+      right: 0;
+      bottom: -16px;
+      left: 0;
+      height: 4px;
+      background: #c59bf5;
+      content: "";
+    }
+
+    .article {
+      padding-top: 38px;
+      font-size: 18px;
+    }
+
+    .article p { margin: 0 0 26px; }
+    .article .welcome { font-weight: 700; }
+    .wiki-name { color: var(--accent); }
+
+    .category-list { margin-top: 42px; }
+    .category { margin: 0 0 18px; }
+    .category.level-2 { margin-left: 44px; }
+    .category.level-3 { margin-left: 84px; }
+
+    .category-name {
+      color: var(--accent);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .category-description {
+      margin: 5px 0 0 !important;
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .extra-section {
+      padding: 38px 0 0;
+      font-size: 16px;
+    }
+
+    .extra-section h2 {
+      margin: 0 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 23px;
+      font-weight: 400;
+    }
+
+    .extra-section p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .packages-page[hidden],
+    .home-page[hidden] { display: none; }
+
+    .packages-page { padding-top: 20px; }
+
+    .packages-title {
+      margin: 0 0 16px;
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .package-summary {
+      margin: 16px 0 10px;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .package-count {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.35;
+    }
+
+    .package-status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .package-list {
+      overflow: hidden;
+      border: 1px solid #bac8d8;
+      background: #fff;
+    }
+
+    .package-card {
+      padding: 12px;
+      color: #24262b;
+      border-bottom: 1px solid #d5deea;
+    }
+
+    .package-card:last-child { border-bottom: 0; }
+
+    .package-card:nth-child(even) {
+      background: #e6eefb;
+    }
+
+    .package-card-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .package-name {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      color: #0876a5;
+      font-size: 16px;
+    }
+
+    .package-version {
+      flex: 0 0 auto;
+      color: #333;
+      font-size: 13px;
+    }
+
+    .package-description {
+      margin: 5px 0 0 !important;
+      color: #30343a;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .package-meta {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      color: #555b64;
+      font-size: 12px;
+    }
+
+    .package-empty,
+    .package-error,
+    .package-loading {
+      padding: 18px 12px;
+      color: #30343a;
+      background: #fff;
+      font-size: 14px;
+    }
+
+    .package-error { color: #a4212b; }
+
+    footer {
+      width: min(100% - 36px, var(--content-width));
+      margin: 0 auto;
+      padding: 22px 0 30px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    @media (max-width: 640px) {
+      .site-header {
+        height: 94px;
+        border-bottom-width: 7px;
+      }
+
+      .site-header-inner {
+        width: 100%;
+        height: 87px;
+        gap: 16px;
+      }
+
+      .brand {
+        width: 88px;
+        height: 82px;
+        justify-content: start;
+        padding-left: 8px;
+      }
+
+      .brand img {
+        width: 66px;
+        height: 66px;
+      }
+
+      .top-nav {
+        gap: 18px;
+        padding-right: 12px;
+      }
+
+      .top-nav a,
+      .top-nav button { font-size: 17px; }
+
+      .toolbar { height: 132px; }
+
+      .toolbar-inner {
+        width: calc(100% - 32px);
+        padding-top: 27px;
+      }
+
+      .icon-button {
+        width: 43px;
+        height: 43px;
+      }
+
+      .icon-button svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .page { padding: 16px 16px 48px; }
+      h1 { font-size: 46px; }
+      .page-tabs { gap: 24px; }
+      .page-tabs a { font-size: 17px; }
+
+      .article {
+        padding-top: 38px;
+        font-size: 18px;
+        line-height: 1.65;
+      }
+
+      .category-name,
+      .category-description { font-size: 18px; }
+
+      .category.level-2 { margin-left: 32px; }
+      .category.level-3 { margin-left: 64px; }
+
+      .packages-page { padding: 18px 0 0; }
+      .packages-title { font-size: 25px; }
+
+      .package-summary { align-items: flex-start; }
+      .package-count { font-size: 21px; }
+    }
+
+    @media (max-width: 390px) {
+      .brand { width: 76px; }
+
+      .top-nav { gap: 15px; }
+
+      .top-nav a,
+      .top-nav button { font-size: 15px; }
+
+      .page-tabs { gap: 16px; }
+
+      .page-tabs a { font-size: 15px; }
+
+      .article { font-size: 17px; }
+
+      .category-name,
+      .category-description { font-size: 17px; }
+
+      .category.level-2 { margin-left: 24px; }
+      .category.level-3 { margin-left: 48px; }
+
+      .package-card { padding: 10px; }
+      .package-name { font-size: 15px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
 </head>
+
 <body>
-    <div id="status-ui"></div>
-    <div id="seed-container">SEED: <input type="text" id="seed-display-val" readonly></div>
-    <div id="side-panel"><h3>COMMAND INPUT</h3><input type="text" id="side-input" placeholder="Type here..."></div>
-    <div id="device-menu"><h1>SELECT DEVICE</h1><button class="btn" onclick="selectDevice('pc')">PC</button><button class="btn" onclick="selectDevice('mobile')">MOBILE</button></div>
-    <div id="menu" style="display:none"><canvas id="menu-canvas"></canvas><h1>VOID ECHO</h1><input type="text" id="seed-input" placeholder="Seed..." maxlength="15"><button id="start-btn" class="btn">START</button></div>
-    <div id="mobile-controls"><div style="display:flex; gap: 25px;"><div class="joy-btn" id="m-left">←</div><div class="joy-btn" id="m-right">→</div></div><div class="joy-btn" id="m-jump">▲</div></div>
-    <div id="hud"><div id="hearts"></div><div id="hotbar"><div class="slot active unlocked">🟫</div><div class="slot unlocked">🔥</div><div class="slot unlocked">💧</div><div class="slot"></div><div class="slot"></div><div class="slot unlocked" id="slot5" style="display:none">🌈</div></div></div>
-    <canvas id="game"></canvas>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="./" aria-label="VoiDWW — на главную">
+        <img
+          src="https://i.postimg.cc/02zbbSv5/Angular-Red-V-Emblem.png"
+          alt="VoiDWW">
+      </a>
 
-<script>
-    function lerp(a, b, t) { return a + (b - a) * t; }
+      <nav class="top-nav" aria-label="Основная навигация">
+        <button id="packages-tab" type="button"
+          aria-controls="packages-page" aria-selected="false">
+          Packages
+        </button>
 
-function getNoise(x, y, s) {
-    let n = Math.sin(x * 0.12 + y * 0.13 + s) * 43758.5453;
-    return n - Math.floor(n);
-}
+        <a href="https://t.me/+_2-rnW1bEsJhNDNi"
+          target="_blank" rel="noopener noreferrer">Forum</a>
 
-function smoothNoise(x, y, s) {
-    let xi = Math.floor(x), yi = Math.floor(y);
-    let xf = x - xi, yf = y - yi;
-    let u = xf * xf * (3 - 2 * xf);
-    let v = yf * yf * (3 - 2 * yf);
-    return lerp(lerp(getNoise(xi, yi, s), getNoise(xi+1, yi, s), u),
-                lerp(getNoise(xi, yi+1, s), getNoise(xi+1, yi+1, s), u), v);
-}
+        <a href="https://t.me/void_dww"
+          target="_blank" rel="noopener noreferrer">Telegram</a>
+      </nav>
+    </div>
+  </header>
 
-const canvas = document.getElementById('game'), ctx = canvas.getContext('2d'), menuCanvas = document.getElementById('menu-canvas'), mCtx = menuCanvas.getContext('2d');
-const ITEMS = ['dirt', 'lava', 'water', null, null, 'rainbow'], LIQUIDS = ['water', 'lava', 'rainbow'], TILE = 32, GRAVITY = 0.4, JUMP = -8.5, SPEED = 3.5;
-let isGameStarted = false, rainbowHue = 0, cameraZoom = 1.0, isNoclip = false, isGodMode = false, isSoundMuted = false, isAdmin = false, currentSeed = "0", isMobile = false;
-let player = { x: 0, y: 0, vx: 0, vy: 0, w: 22, h: 36, grounded: false, inWater: false, walkTimer: 0, dir: 1, hurtTint: 0, hp: 10, maxHp: 10, lastHit: 0, selectedSlot: 0 };
-let world = {}, particles = [], clones = [], liquidUpdateFrame = 0;
-let monster = { x: 0, y: 0, active: false, timer: 0, nextSpawn: Date.now() + 300000 };
-const keys = {};
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <button class="icon-button" id="menu-button" type="button"
+        aria-label="Открыть меню"
+        aria-expanded="false"
+        aria-controls="mobile-menu">
+        <svg viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M3 7h30M3 18h30M3 29h30"></path>
+        </svg>
+      </button>
+    </div>
 
-function selectDevice(t) { isMobile = (t === 'mobile'); document.getElementById('device-menu').style.display = 'none'; document.getElementById('menu').style.display = 'flex'; if (isMobile) document.getElementById('mobile-controls').style.display = 'flex'; initMenu(); }
-function spawnParticles(x, y, color) { for(let i=0; i<10; i++) particles.push({ x: x+Math.random()*TILE, y: y+Math.random()*TILE, vx: (Math.random()-0.5)*4, vy: Math.random()*2, life: 300, color: color }); }
-function spawnClone() { clones.push({ x: player.x, y: player.y, vx: (Math.random()-0.5)*5, vy: JUMP, w: 22, h: 36, dir: Math.random()>0.5?1:-1, walkTimer: 0, grounded: false }); }
+    <nav class="mobile-menu" id="mobile-menu" aria-label="Меню сайта">
+      <a href="#join">Связь с сообществом</a>
+      <a href="https://t.me/void_dww"
+        target="_blank" rel="noopener noreferrer">
+        Telegram — @void_dww
+      </a>
+    </nav>
+  </div>
 
-function updateLiquids() {
-    let tiles = Object.keys(world);
-    for (let key of tiles) {
-        let b = world[key];
-        if (LIQUIDS.includes(b.type)) {
-            let [x, y] = key.split(',').map(Number);
-            if (y > 174) continue;
-            if (b.type === 'rainbow') {
-                [`${x},${y+1}`, `${x-1},${y}`, `${x+1},${y}`].forEach(n => { if(!world[n]) world[n]={type:'rainbow', dist:0}});
-                continue;
-            }
-            let down = `${x},${y+1}`;
-            if (!world[down]) { world[down] = { type: b.type, dist: 0 }; continue; }
-            let max = b.type === 'water' ? 7 : 3;
-            if (b.dist < max) {
-                if (!world[`${x-1},${y}`]) world[`${x-1},${y}`] = { type: b.type, dist: b.dist + 1 };
-                if (!world[`${x+1},${y}`]) world[`${x+1},${y}`] = { type: b.type, dist: b.dist + 1 };
-            }
-        }
-    }
-}
+  <main class="page">
+    <section class="home-page" id="home-page">
+      <h1>Main page</h1>
 
-// Улучшенное перемешивание сида
-function cyrb128(str) {
-    let h1 = 1779033703, h2 = 1911520191, h3 = 2854904213, h4 = 3387418403;
-    for (let i = 0, k; i < str.length; i++) {
-        k = str.charCodeAt(i);
-        h1 = h2 ^ Math.imul(h1 ^ k, 597399067);
-        h2 = h3 ^ Math.imul(h2 ^ k, 2869860233);
-        h3 = h4 ^ Math.imul(h3 ^ k, 951274213);
-        h4 = h1 ^ Math.imul(h4 ^ k, 2716044179);
-    }
-    h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067);
-    h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233);
-    h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213);
-    h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
-    return [(h1^h2^h3^h4)>>>0, (h2^h1)>>>0, (h3^h1)>>>0, (h4^h1)>>>0];
-}
+      <nav class="page-tabs" aria-label="Вкладки страницы">
+        <a class="active" href="#main-page">Main Page</a>
+        <a href="https://t.me/+_2-rnW1bEsJhNDNi"
+          target="_blank" rel="noopener noreferrer">
+          Discussion
+        </a>
+      </nav>
 
-function sfc32(a, b, c, d) {
-    return function() {
-        a >>>= 0; b >>>= 0; c >>>= 0; d >>>= 0; 
-        var t = (a + b | 0) + d | 0;
-        d = d + 1 | 0;
-        a = b ^ b >>> 9;
-        b = c + (c << 3) | 0;
-        c = (c << 21 | c >>> 11);
-        c = c + t | 0;
-        return (t >>> 0) / 4294967296;
-    }
-}
+      <article class="article" id="main-page">
+        <p class="welcome">
+          Welcome to the <span class="wiki-name">VoiDWW Wiki</span>:
+          your source for VoiDWW documentation on the web.
+        </p>
 
-function drawChar(x, y, dir, wt, tint, isFake = false) {
-    ctx.save(); ctx.translate(x + 11, y + 18);
-    if (!isFake && isAdmin) {
-        ctx.save(); ctx.scale(1/cameraZoom, 1/cameraZoom); ctx.font = "bold 14px 'Courier New'"; ctx.textAlign = "center";
-        ctx.shadowBlur = 10; ctx.shadowColor = "#0f0"; ctx.fillStyle = "#0f0"; ctx.fillText("[Admin]", 0, -36 * cameraZoom - 15); ctx.restore();
-        ctx.fillStyle = "#FF8C00"; ctx.beginPath(); ctx.moveTo(-6, -18); ctx.lineTo(-10, -30); ctx.lineTo(-2, -18); ctx.moveTo(6, -18); ctx.lineTo(10, -30); ctx.lineTo(2, -18); ctx.fill();
-    }
-    if (dir === -1) ctx.scale(-1, 1);
-    if (!isFake && isNoclip) ctx.globalAlpha = 0.75;
-    let pCol = tint > 0 ? "red" : (isFake ? "rgba(255,0,0,0.6)" : getDepthColor(y + 18));
-    ctx.strokeStyle = pCol; ctx.fillStyle = "black"; ctx.lineWidth = 2;
-    ctx.fillRect(-11, -18, 22, 28); ctx.strokeRect(-11, -18, 22, 28);
-    let lm = Math.sin(wt) * 6; ctx.strokeRect(-8, 10, 4, 8 + lm); ctx.strokeRect(4, 10, 4, 8 - lm);
-    ctx.fillStyle = pCol; ctx.fillRect(2, -8, 6, 2); ctx.fillRect(-6, -8, 6, 2); ctx.restore();
-}
+        <p>
+          Visit the
+          <a href="https://t.me/void_dww/4"
+            target="_blank" rel="noopener noreferrer">
+            Table of contents
+          </a>
+          for a listing of article categories.
+        </p>
 
-// Возвращает цвет для блока на определенной высоте Y
-// Градиент: красный (низ) -> белый (верх)
-function getDepthColor(y) {
-    // Блоки выше высоты 20 - белые
-    if (y < 20) return "white";
-    
-    // Нормализуем высоту от 0 до 1
-    // 0 = самая высокая точка градиента (20 блоков вниз от самой низкой поверхности)
-    // 1 = самая низкая точка градиента (самая низкая поверхность)
-    let normalizedY = Math.max(0, Math.min(20, y)) / 20;
-    
-    // Градиент от красного к белому
-    // Красный: rgb(255, 0, 0)
-    // Белый: rgb(255, 255, 255)
-    let red = 255;
-    let green = Math.floor(255 * (1 - normalizedY));
-    let blue = Math.floor(255 * (1 - normalizedY));
-    
-    return `rgb(${red}, ${green}, ${blue})`;
-}
-function checkColl(obj, isX) {
-    if (obj === player && isNoclip) return;
-    let x1 = Math.floor(obj.x/TILE), x2 = Math.floor((obj.x+obj.w)/TILE), y1 = Math.floor(obj.y/TILE), y2 = Math.floor((obj.y+obj.h)/TILE);
-    for (let tx = x1; tx <= x2; tx++) for (let ty = y1; ty <= y2; ty++) {
-        let b = world[`${tx},${ty}`];
-        if (!b || LIQUIDS.includes(b.type)) {
-            if (b && obj === player) { 
-                player.inWater = true; 
-                if (b.type === 'lava' && !isGodMode && Date.now() - player.lastHit > 500) { player.hp--; player.hurtTint = 10; player.lastHit = Date.now(); updateUI(); }
-            }
-            continue;
-        }
-        if (isX) { if (obj.vx > 0) obj.x = tx * TILE - obj.w - 0.01; else if (obj.vx < 0) obj.x = (tx + 1) * TILE + 0.01; if (obj !== player) obj.dir *= -1; }
-        else { if (obj.vy > 0) { obj.y = ty * TILE - obj.h - 0.01; obj.vy = 0; obj.grounded = true; } else if (obj.vy < 0) { obj.y = (ty + 1) * TILE + 0.01; obj.vy = 0; } }
-    }
-}
+        <div class="category-list">
+          <section class="category">
+            <div class="category-name">1. Об VoiDWW</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// --- ГЕНЕРАТОР БЕСКОНЕЧНОГО МИРА ---
-// ================ НОВЫЕ ФУНКЦИИ ГЕНЕРАЦИИ ================
+          <section class="category level-2">
+            <div class="category-name">1.1. VoiDWW Wiki</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// 1. Генерирует высоту поверхности для координаты X
-// ================ НОВЫЕ ФУНКЦИИ ГЕНЕРАЦИИ ================
+          <section class="category">
+            <div class="category-name">2. Разработка</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// 1. Генерирует высоту поверхности для координаты X
-// ================ УЛУЧШЕННАЯ ГЕНЕРАЦИЯ С ГОРАМИ ================
+          <section class="category level-2">
+            <div class="category-name">2.1. Сайт</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// 1. Генерирует высоту поверхности с горами
-function generateSurfaceHeight(x) {
-    const [s1, s2, s3] = cyrb128(currentSeed);
-    
-    // Масштабы шумов
-    const baseScale = 0.02;     // Очень крупные формы
-    const mountainScale = 0.008; // Огромные горные хребты
-    const hillScale = 0.06;     // Средние холмы
-    const detailScale = 0.15;   // Мелкие детали
-    
-    // Амплитуды
-    const baseAmplitude = 35;    // Базовый рельеф
-    const mountainAmplitude = 80; // Высокие горы
-    const hillAmplitude = 25;    // Холмы
-    const detailAmplitude = 8;   // Детализация
-    
-    const baseHeight = 80;
-    
-    // 1. Очень крупные формы (континенты)
-    let baseNoise = smoothNoise(x * baseScale, 0, s1) * baseAmplitude;
-    
-    // 2. Горные хребты (редкие, но высокие)
-    let mountainMask = smoothNoise(x * 0.005, 500, s2); // Определяем где будут горы
-    let mountainNoise = smoothNoise(x * mountainScale, 1000, s1);
-    let mountains = 0;
-    if (mountainMask > 0.5) { // Горы только в некоторых местах
-        mountains = mountainNoise * mountainAmplitude * (mountainMask - 0.5) * 2;
-    }
-    
-    // 3. Средние холмы
-    let hillNoise = smoothNoise(x * hillScale, 2000, s2) * hillAmplitude;
-    
-    // 4. Мелкие детали
-    let detailNoise = smoothNoise(x * detailScale, 3000, s3) * detailAmplitude;
-    
-    // Комбинируем все слои
-    let height = baseHeight + baseNoise + mountains + hillNoise + detailNoise;
-    
-    // Ограничиваем высоту (горы могут быть до 180, равнины от 60)
-    return Math.floor(Math.max(60, Math.min(180, height)));
-}
+          <section class="category">
+            <div class="category-name">3. Аппаратная часть</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// 2. Находит абсолютную минимальную высоту поверхности
-function findAbsoluteMinSurfaceHeight() {
-    let minHeight = 180; // Максимально возможная высота
-    const [s1] = cyrb128(currentSeed);
-    
-    // Проверяем 1000 блоков в каждую сторону для надежности
-    for (let x = -500; x <= 500; x++) {
-        let height = generateSurfaceHeight(x);
-        if (height < minHeight) {
-            minHeight = height;
-        }
-    }
-    
-    return minHeight;
-}
+          <section class="category level-2">
+            <div class="category-name">3.1. Хост</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// 3. Плавный градиентный цвет
-function getSmoothGradientColor(gradientHeight) {
-    // gradientHeight: 0-20 (0 = верх градиента, 20 = низ градиента)
-    
-    if (gradientHeight <= 0) return "white";
-    if (gradientHeight >= 20) return "rgb(255, 0, 0)";
-    
-    // Используем кубическую интерполяцию для плавности
-    let t = gradientHeight / 20;
-    
-    // Плавная функция easing
-    let smoothT = t * t * (3 - 2 * t); // Кубическая интерполяция
-    
-    // Цвета для градиента
-    let startColor = { r: 255, g: 255, b: 255 }; // Белый
-    let endColor = { r: 255, g: 0, b: 0 };      // Красный
-    
-    // Плавный переход
-    let r = Math.floor(startColor.r + (endColor.r - startColor.r) * smoothT);
-    let g = Math.floor(startColor.g + (endColor.g - startColor.g) * smoothT);
-    let b = Math.floor(startColor.b + (endColor.b - startColor.b) * smoothT);
-    
-    return `rgb(${r}, ${g}, ${b})`;
-}
+          <section class="category level-2">
+            <div class="category-name">3.2. Карта</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// 4. Проверяет, есть ли пещера в этой позиции
-function isCave(x, y, surfaceHeight) {
-    const [s1, s2] = cyrb128(currentSeed);
-    
-    // Только под землей
-    if (y >= surfaceHeight - 5) return false;
-    
-    // Глубина от поверхности
-    let depth = surfaceHeight - y;
-    
-    // Вероятность пещер увеличивается с глубиной
-    let caveChance = 0.3 + (depth / 100) * 0.4;
-    
-    // Большие пещеры глубоко
-    let bigCaveNoise = smoothNoise(x * 0.12, y * 0.12, s1);
-    if (depth > 40 && bigCaveNoise > (1 - caveChance)) return true;
-    
-    // Мелкие пещеры
-    let smallCaveNoise = smoothNoise(x * 0.25, y * 0.25, s2);
-    if (smallCaveNoise > 0.78) return true;
-    
-    // Вертикальные пещеры (шахты)
-    let verticalCave = smoothNoise(x * 0.4, 0, s1);
-    if (verticalCave > 0.9 && Math.abs(x % 20) < 2) return true;
-    
-    return false;
-}
+          <section class="category level-3">
+            <div class="category-name">3.2.1. Сохранение</div>
+            <p class="category-description">Твой текст</p>
+          </section>
 
-// 5. Проверяет, находится ли позиция на склоне горы
-function isMountainSlope(x, y, surfaceHeight) {
-    const [s1] = cyrb128(currentSeed);
-    
-    // Только на поверхности или около нее
-    if (y < surfaceHeight - 10 || y > surfaceHeight) return false;
-    
-    // Проверяем крутизну склона
-    let heightHere = generateSurfaceHeight(x);
-    let heightLeft = generateSurfaceHeight(x - 1);
-    let heightRight = generateSurfaceHeight(x + 1);
-    
-    // Крутой склон если разница больше 3 блоков
-    let steepLeft = Math.abs(heightHere - heightLeft) > 3;
-    let steepRight = Math.abs(heightHere - heightRight) > 3;
-    
-    return steepLeft || steepRight;
-}
+          <section class="category level-2">
+            <div class="category-name">3.3. Читерство</div>
+            <p class="category-description">Твой текст</p>
+          </section>
+        </div>
 
-// 6. Генерирует один блок в позиции (x, y)
-function generateBlockAt(x, y) {
-    // 1. БЕДРОК (дно мира)
-    if (y >= 175) {
-        return { type: 'bedrock' };
-    }
-    
-    // 2. Определяем высоту поверхности для этой колонки
-    let surfaceHeight = generateSurfaceHeight(x);
-    
-    // 3. АД (глубина > 130 блоков)
-    if (y > 130) {
-        // Больше пещер в аду
-        if (Math.random() < 0.5) return null;
-        
-        let hellDepth = y - 130;
-        let redIntensity = Math.min(255, 50 + hellDepth * 5);
-        
-        // Добавляем немного вариативности
-        let variation = Math.sin(x * 0.1 + y * 0.05) * 20;
-        redIntensity = Math.max(50, Math.min(255, redIntensity + variation));
-        
-        return {
-            type: 'hellstone',
-            color: `rgb(${redIntensity}, 0, 0)`
-        };
-    }
-    
-    // 4. Если ВЫШЕ поверхности - ВОЗДУХ (когда игрок высоко в горах)
-    if (y > surfaceHeight) {
-        // Снег на вершинах высоких гор
-        if (surfaceHeight > 140 && y === surfaceHeight + 1) {
-            if (Math.random() < 0.7) return { type: 'snow' };
-        }
-        return null; // Воздух
-    }
-    
-    // 5. Если РОВНО на поверхности
-    if (y === surfaceHeight) {
-        // Снег на высоких горах
-        if (surfaceHeight > 140) {
-            return { type: 'snow' };
-        }
-        // Камень на крутых склонах
-        else if (isMountainSlope(x, y, surfaceHeight)) {
-            return { type: 'stone' };
-        }
-        // Обычная трава
-        else {
-            return { type: 'grass' };
-        }
-    }
-    
-    // 6. Если сразу под поверхностью
-    if (y < surfaceHeight && y > surfaceHeight - 5) {
-        // На горах сразу камень под снегом
-        if (surfaceHeight > 140 && y === surfaceHeight - 1) {
-            return { type: 'stone' };
-        }
-        return { type: 'dirt' };
-    }
-    
-    // 7. Находим абсолютную минимальную высоту для градиента
-    // (вычисляем один раз и кэшируем)
-    if (!window.absoluteMinSurfaceHeight) {
-        window.absoluteMinSurfaceHeight = findAbsoluteMinSurfaceHeight();
-    }
-    let absoluteMin = window.absoluteMinSurfaceHeight;
-    let gradientStartY = absoluteMin - 20; // Начинаем градиент за 20 блоков ДО самой низкой точки
-    
-    // 8. ГРАДИЕНТНЫЙ СЛОЙ (20 блоков вниз от самой низкой точки поверхности)
-    if (y >= gradientStartY && y < surfaceHeight) {
-        // Вычисляем высоту в градиенте (0-20)
-        // 0 = верх градиента (самая низкая поверхность - 20)
-        // 20 = низ градиента (самая низкая поверхность)
-        let gradientHeight = y - gradientStartY;
-        
-        // Только для камня в градиентном слое (ниже слоя земли)
-        if (y < surfaceHeight - 5) {
-            // Проверяем пещеры в градиентном слое
-            if (isCave(x, y, surfaceHeight)) {
-                return null;
-            }
-            
-            return {
-                type: 'stone',
-                color: getSmoothGradientColor(gradientHeight)
-            };
-        }
-    }
-    
-    // 9. Проверяем пещеры (для обычного камня)
-    if (y < surfaceHeight - 5) {
-        if (isCave(x, y, surfaceHeight)) {
-            return null; // Воздух в пещере
-        }
-    }
-    
-    // 10. Обычный камень (все что глубже 5 блоков от поверхности)
-    if (y < surfaceHeight - 5) {
-        return { type: 'stone' };
-    }
-    
-    // 11. По умолчанию - воздух
-    return null;
-}
+        <section class="extra-section" id="join">
+          <h2>Связь с сообществом</h2>
+          <p>
+            Канал сообщества:
+            <a href="https://t.me/void_dww"
+              target="_blank" rel="noopener noreferrer">
+              t.me/void_dww
+            </a>
+          </p>
+        </section>
+      </article>
+    </section>
 
-// 7. Основная функция генерации
-function generateRegion(startX, endX) {
-    const storageKey = 'void_echo_mountains_' + currentSeed;
-    const mods = JSON.parse(localStorage.getItem(storageKey) || '{}');
-    
-    // Кэшируем абсолютную минимальную высоту
-    if (!window.absoluteMinSurfaceHeight) {
-        window.absoluteMinSurfaceHeight = findAbsoluteMinSurfaceHeight();
-    }
-    
-    for (let x = startX; x < endX; x++) {
-        // Генерируем от неба (высота 0) до дна мира
-        for (let y = 0; y < 180; y++) {
-            let key = `${x},${y}`;
-            
-            // Пропускаем уже существующие блоки
-            if (world[key]) continue;
-            
-            // Проверяем модификации игрока
-            if (mods[key]) {
-                if (mods[key] === "deleted") continue;
-                world[key] = { type: mods[key], modified: true };
-                continue;
-            }
-            
-            // Генерируем новый блок
-            let block = generateBlockAt(x, y);
-            if (block) {
-                world[key] = block;
-            }
-        }
-    }
-}
-// ================ ОБНОВЛЕННАЯ ФУНКЦИЯ ОТРИСОВКИ ================
+    <section class="packages-page" id="packages-page" hidden>
+      <h1 class="packages-title">Package Search</h1>
 
-// В функции gameLoop, в части отрисовки блоков, замените на:
-function drawBlockWithStyle(wx, wy, b, yOff = 0, alpha = 1) {
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    
-    if (b.type === 'lava') { 
-        ctx.fillStyle = "#FF4500"; 
-        ctx.fillRect(wx, wy + yOff + 4, TILE, TILE - 4); 
-    } else if (b.type === 'water') { 
-        ctx.fillStyle = "#00BFFF"; 
-        ctx.fillRect(wx, wy + yOff + 4, TILE, TILE - 4); 
-    } else if (b.type === 'rainbow') { 
-        ctx.fillStyle = `hsl(${rainbowHue}, 80%, 50%)`; 
-        ctx.fillRect(wx, wy + yOff, TILE, TILE); 
-    } else if (b.color) {
-        // Для градиентных и адских блоков
-        ctx.fillStyle = b.color;
-        ctx.fillRect(wx, wy + yOff, TILE, TILE);
-        ctx.strokeStyle = "#333";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(wx, wy + yOff, TILE, TILE);
-    } else {
-        // Для обычных блоков
-        let strokeColor = "#666";
-        if (b.type === 'bedrock') strokeColor = "#444";
-        if (b.type === 'grass') strokeColor = "#0a0";
-        if (b.type === 'dirt') strokeColor = "#963";
-        
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = b.type === 'bedrock' ? 4 : 2;
-        ctx.strokeRect(wx + 2, wy + yOff + 2, TILE - 4, TILE - 4);
-    }
-    
-    ctx.restore();
-}
+      <div class="package-summary">
+        <p class="package-count" id="package-count" aria-live="polite">
+          Загрузка пакетов…
+        </p>
+        <p class="package-status" id="package-status"></p>
+      </div>
 
-// Затем в цикле отрисовки в gameLoop вызовите:
-// Замените блок кода отрисовки на:
-/*
-for (let x = Math.floor(player.x / TILE - vw); x < Math.ceil(player.x / TILE + vw); x++) {
-    for (let y = Math.floor(player.y / TILE - vh); y < Math.ceil(player.y / TILE + vh); y++) {
-        const b = world[`${x},${y}`]; 
-        if (!b) continue;
+      <div class="package-list" id="package-list" aria-live="polite">
+        <div class="package-loading">Загружаю список пакетов…</div>
+      </div>
+    </section>
+  </main>
 
-        const wx = x * TILE;
-        const wy = y * TILE;
+  <footer>VoiDWW · информационный ресурс сообщества</footer>
 
-        // ... расчет yOff и alpha ...
+  <script>
+    const packagesTab = document.querySelector("#packages-tab");
+    const homePage = document.querySelector("#home-page");
+    const packagesPage = document.querySelector("#packages-page");
+    const packageCount = document.querySelector("#package-count");
+    const packageStatus = document.querySelector("#package-status");
+    const packageList = document.querySelector("#package-list");
+    const menuButton = document.querySelector("#menu-button");
+    const mobileMenu = document.querySelector("#mobile-menu");
 
-        drawBlockWithStyle(wx, wy, b, yOff, alpha);
-    }
-}
-*/
-function gameLoop() {
-    if (!isGameStarted) return;
+    let packages = [];
+    let packagesLoaded = false;
 
-    // 1. СИСТЕМНЫЕ ОБНОВЛЕНИЯ
-    rainbowHue = (rainbowHue + 2) % 360;
-    if (isGodMode) updateUI();
-    
-    // 2. БЕСКОНЕЧНАЯ ГЕНЕРАЦИЯ (GitHub Optimized 2025)
-    // Подгружаем мир на 60 блоков вокруг игрока в реальном времени
-    let currentTileX = Math.floor(player.x / TILE);
-    generateRegion(currentTileX - 60, currentTileX + 60);
+    function showPackages(show) {
+      homePage.hidden = show;
+      packagesPage.hidden = !show;
+      packagesTab.classList.toggle("active", show);
+      packagesTab.setAttribute("aria-selected", String(show));
 
-    // 3. ФИЗИКА И УПРАВЛЕНИЕ ИГРОКОМ
-    let mx = 0; 
-    if (keys['KeyA'] || (isMobile && keys['m-left'])) mx = -SPEED; 
-    if (keys['KeyD'] || (isMobile && keys['m-right'])) mx = SPEED;
-    
-    if (isNoclip) {
-        player.vx = player.vy = 0; 
-        if (mx < 0) { player.x -= SPEED * 2; player.dir = -1; } 
-        if (mx > 0) { player.x += SPEED * 2; player.dir = 1; }
-        if (keys['Space'] || (isMobile && keys['m-jump'])) player.y -= SPEED * 2; 
-        if (keys['ShiftLeft']) player.y += SPEED * 2;
-    } else {
-        player.vx = mx; 
-        if (mx !== 0) { player.dir = mx > 0 ? 1 : -1; player.walkTimer += 0.15; }
-        player.x += player.vx; 
-        checkColl(player, true);
-        
-        if (player.inWater) {
-            player.vy = (keys['Space'] || (isMobile && keys['m-jump'])) ? -4 : Math.min(player.vy + 0.1, 1.5);
-        } else { 
-            player.vy += GRAVITY; 
-            if ((keys['Space'] || (isMobile && keys['m-jump'])) && player.grounded) { 
-                player.vy = JUMP; 
-                player.grounded = false; 
-            } 
-        }
-        player.y += player.vy; 
-        player.grounded = false; 
-        player.inWater = false; 
-        checkColl(player, false);
+      if (show && !packagesLoaded) {
+        loadPackages();
+      }
     }
 
-    // 4. СУЩНОСТИ И ЖИДКОСТИ
-    clones.forEach(c => { 
-        c.vx = c.dir * SPEED; c.x += c.vx; checkColl(c, true); 
-        c.vy += GRAVITY; if (c.grounded && Math.random() < 0.02) c.vy = JUMP; 
-        c.y += c.vy; c.grounded = false; checkColl(c, false); c.walkTimer += 0.15; 
+    packagesTab.addEventListener("click", () => {
+      showPackages(packagesPage.hidden);
     });
-    if (++liquidUpdateFrame % 10 === 0) updateLiquids();
 
-    // 5. НАСТРОЙКА ХОЛСТА И АТМОСФЕРЫ (АД)
-    canvas.width = window.innerWidth; 
-    canvas.height = window.innerHeight;
-    
-    let depth = player.y / TILE;
-    if (depth > 130) {
-        // Эффект раскаленного воздуха в аду
-        let redTone = Math.min(45, (depth - 130) * 2.5);
-        ctx.fillStyle = `rgb(${redTone}, 0, 0)`;
-    } else {
-        ctx.fillStyle = "black";
-    }
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // 6. КАМЕРА
-    ctx.save(); 
-    ctx.translate(canvas.width / 2, canvas.height / 2); 
-    ctx.scale(cameraZoom, cameraZoom); 
-    ctx.translate(-player.x, -player.y);
+    async function loadPackages() {
+      packageList.replaceChildren();
 
-    // 7. GD-АНИМАЦИЯ И ОТРИСОВКА МИРА
-    const viewHalfW = (canvas.width / 2) / cameraZoom;
-    const leftLimit = player.x - viewHalfW;
-    const rightLimit = player.x + viewHalfW;
-    const animZone = TILE * 7; // Зона плавного появления
+      const loading = document.createElement("div");
+      loading.className = "package-loading";
+      loading.textContent = "Загружаю список пакетов…";
+      packageList.append(loading);
 
-    const vw = viewHalfW / TILE + 2;
-    const vh = (canvas.height / TILE) / cameraZoom / 2 + 2;
+      try {
+        const response = await fetch("./packages.json", {
+          cache: "no-store"
+        });
 
-    for (let x = Math.floor(player.x / TILE - vw); x < Math.ceil(player.x / TILE + vw); x++) {
-        for (let y = Math.floor(player.y / TILE - vh); y < Math.ceil(player.y / TILE + vh); y++) {
-            const b = world[`${x},${y}`]; 
-            if (!b) continue;
-
-            const wx = x * TILE;
-            const wy = y * TILE;
-
-            // Расчет плавного выплывания снизу по краям (GD Style)
-            const dL = wx - leftLimit;
-            const dR = rightLimit - (wx + TILE);
-            const minDist = Math.min(dL, dR);
-            
-            let yOff = 0;
-            let alpha = 1;
-
-            if (minDist < animZone) {
-                let p = Math.max(0, minDist / animZone);
-                let ease = 1 - Math.pow(1 - p, 3); // Cubic ease-out
-                yOff = (1 - ease) * TILE * 3.5;
-                alpha = ease;
-            }
-
-            if (alpha <= 0.01) continue;
-
-            ctx.globalAlpha = alpha;
-            const finalY = wy + yOff;
-
-            if (b.type === 'lava') { 
-                ctx.fillStyle = "#FF4500"; ctx.fillRect(wx, finalY+4, TILE, TILE-4); 
-            } else if (b.type === 'water') { 
-                ctx.fillStyle = "#00BFFF"; ctx.fillRect(wx, finalY+4, TILE, TILE-4); 
-            } else if (b.type === 'rainbow') { 
-                ctx.fillStyle = `hsl(${rainbowHue}, 80%, 50%)`; ctx.fillRect(wx, finalY, TILE, TILE); 
-            } else { 
-                ctx.strokeStyle = getDepthColor(y * TILE); 
-                ctx.lineWidth = b.type === 'bedrock' ? 4 : 2; 
-                ctx.strokeRect(wx + 2, finalY + 2, TILE - 4, TILE - 4); 
-            }
+        if (!response.ok) {
+          throw new Error(
+            `Не удалось загрузить packages.json (${response.status})`
+          );
         }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          throw new Error("В packages.json должен быть массив пакетов.");
+        }
+
+        packages = data;
+        packagesLoaded = true;
+        renderPackages();
+      } catch (error) {
+        packageCount.textContent = "Не удалось загрузить пакеты";
+        packageStatus.textContent = "";
+
+        packageList.replaceChildren();
+
+        const message = document.createElement("div");
+        message.className = "package-error";
+        message.textContent =
+          "Проверьте, что packages.json находится рядом с index.html " +
+          "и сайт открыт через веб-сервер.";
+        packageList.append(message);
+
+        console.error(error);
+      }
     }
-    ctx.globalAlpha = 1;
 
-    // 8. ОТРИСОВКА ЧАСТИЦ И ПЕРСОНАЖЕЙ
-    for (let i = particles.length - 1; i >= 0; i--) {
-        let p = particles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life--; 
-        ctx.globalAlpha = Math.max(0, p.life / 300);
-        ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); 
-        if (p.life <= 0) particles.splice(i, 1);
+    function renderPackages() {
+      const filtered = packages;
+
+      packageCount.textContent =
+        `${filtered.length} пакетов найдено`;
+
+      packageStatus.textContent =
+        `Всего: ${packages.length}`;
+
+      packageList.replaceChildren();
+
+      if (filtered.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "package-empty";
+        empty.textContent = "Пакеты не найдены.";
+        packageList.append(empty);
+        return;
+      }
+
+      filtered.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "package-card";
+
+        const top = document.createElement("div");
+        top.className = "package-card-top";
+
+        const name = document.createElement("a");
+        name.className = "package-name";
+        name.textContent = item.name || "Без названия";
+
+        if (item.fileUrl) {
+          name.href = item.fileUrl;
+          name.target = "_blank";
+          name.rel = "noopener noreferrer";
+        } else {
+          name.removeAttribute("href");
+          name.setAttribute("aria-disabled", "true");
+          name.style.color = "#777";
+        }
+
+        const version = document.createElement("span");
+        version.className = "package-version";
+        version.textContent = item.version || "";
+
+        top.append(name, version);
+        card.append(top);
+
+        if (item.description) {
+          const description = document.createElement("p");
+          description.className = "package-description";
+          description.textContent = item.description;
+          card.append(description);
+        }
+
+        const meta = document.createElement("div");
+        meta.className = "package-meta";
+
+        [
+          item.arch,
+          item.repository,
+          item.updated
+        ].filter(Boolean).forEach((value) => {
+          const detail = document.createElement("span");
+          detail.textContent = value;
+          meta.append(detail);
+        });
+
+        if (meta.childElementCount > 0) {
+          card.append(meta);
+        }
+
+        packageList.append(card);
+      });
     }
-    ctx.globalAlpha = 1;
 
-    drawChar(player.x, player.y, player.dir, player.walkTimer, player.hurtTint);
-    if (monster.active) drawChar(monster.x, monster.y, monster.x > player.x ? -1 : 1, 0, 0, true);
-    clones.forEach(c => drawChar(c.x, c.y, c.dir, c.walkTimer, 0)); 
-    
-    ctx.restore();
+    menuButton.addEventListener("click", () => {
+      const isOpen =
+        menuButton.getAttribute("aria-expanded") === "true";
 
-    // 9. СМЕРТЬ
-    if (player.hp <= 0 && !isGodMode) { 
-        player.x = 0; player.y = 0; player.hp = 10; updateUI(); 
-    }
-    
-    requestAnimationFrame(gameLoop);
-}
+      menuButton.setAttribute(
+        "aria-expanded",
+        String(!isOpen)
+      );
 
-function updateUI() {
-    const h = document.getElementById('hearts'); h.innerHTML = '';
-    for(let i=0; i<10; i++) {
-        let empty = i >= player.hp; let style = isGodMode ? `color: hsl(${rainbowHue}, 80%, 50%)` : "";
-        h.innerHTML += `<span class="heart ${empty?'empty':''} ${isGodMode?'god':''}" style="${isGodMode && !empty ? style : ''}">❤</span>`;
-    }
-    document.querySelectorAll('.slot').forEach((s, i) => s.classList.toggle('active', i === player.selectedSlot));
-}
+      mobileMenu.classList.toggle(
+        "is-open",
+        !isOpen
+      );
+    });
 
-window.onkeydown = (e) => {
-    if (document.activeElement.tagName === 'INPUT') return;
-    keys[e.code] = true; let k = e.key.toLowerCase();
-    if (k === 'g' || k === 'п') spawnClone();
-    if (k === 'n' || k === 'т') isNoclip = !isNoclip;
-    if (k === 'b' || k === 'и') { isGodMode = !isGodMode; updateUI(); }
-    if (k >= '1' && k <= '6') { player.selectedSlot = parseInt(k)-1; updateUI(); }
-};
-window.onkeyup = (e) => keys[e.code] = false;
-
-document.getElementById('side-input').onkeydown = (e) => { if (e.key === 'Enter') { if (e.target.value.toLowerCase().trim() === 'admin') { isAdmin = true; isGodMode = true; document.getElementById('slot5').style.display = 'flex'; updateUI(); } e.target.value = ""; e.target.blur(); } };
-
-canvas.onmousedown = (e) => {
-    if (!isGameStarted) return;
-    let mx = (e.clientX-canvas.width/2)/cameraZoom+player.x, my = (e.clientY-canvas.height/2)/cameraZoom+player.y, tx = Math.floor(mx/TILE), ty = Math.floor(my/TILE), k = `${tx},${ty}`;
-    if (e.button === 0 && world[k] && world[k].type !== 'bedrock') { spawnParticles(tx*TILE, ty*TILE, getDepthColor(ty*TILE)); delete world[k]; let mods = JSON.parse(localStorage.getItem('void_echo_v1_'+currentSeed)||'{}'); mods[k]="deleted"; localStorage.setItem('void_echo_v1_'+currentSeed,JSON.stringify(mods)); }
-    else if (e.button === 2 && ITEMS[player.selectedSlot]) { world[k] = { type: ITEMS[player.selectedSlot], modified: true, dist: 0 }; let mods = JSON.parse(localStorage.getItem('void_echo_v1_'+currentSeed)||'{}'); mods[k]=ITEMS[player.selectedSlot]; localStorage.setItem('void_echo_v1_'+currentSeed,JSON.stringify(mods)); }
-};
-canvas.oncontextmenu = (e) => e.preventDefault();
-
-document.getElementById('start-btn').onclick = () => {
-    currentSeed = document.getElementById('seed-input').value || Math.random().toString(36).substring(7);
-    document.getElementById('seed-display-val').value = currentSeed; document.getElementById('seed-container').style.display = "block"; document.getElementById('side-panel').style.display = "block"; document.getElementById('menu').style.display = 'none'; document.getElementById('hud').style.display = 'flex';
-    isGameStarted = true; generateRegion(-100, 100); player.y = 0; updateUI(); gameLoop();
-};
-
-['m-left', 'm-right', 'm-jump'].forEach(id => { const el = document.getElementById(id); el.ontouchstart = (e) => { e.preventDefault(); keys[id] = true; }; el.ontouchend = (e) => { e.preventDefault(); keys[id] = false; }; });
-
-function initMenu() {
-    menuCanvas.width = innerWidth; menuCanvas.height = innerHeight;
-    let p = []; for(let i=0; i<50; i++) p.push({x: Math.random()*innerWidth, y: Math.random()*innerHeight, s: 1+Math.random()});
-    (function anim(){ if(isGameStarted) return; mCtx.fillStyle = 'black'; mCtx.fillRect(0,0,innerWidth,innerHeight); p.forEach(i => { i.y += i.s; if(i.y > innerHeight) i.y = -10; mCtx.fillStyle = '#333'; mCtx.fillRect(i.x, i.y, 4, 4); }); requestAnimationFrame(anim); })();
-}
-</script>
+    document.querySelectorAll(".mobile-menu a").forEach((link) => {
+      link.addEventListener("click", () => {
+        menuButton.setAttribute("aria-expanded", "false");
+        mobileMenu.classList.remove("is-open");
+      });
+    });
+  </script>
 </body>
-</html>```
-
-
-
-
-
-
-
-
-
-
-
+</html>
